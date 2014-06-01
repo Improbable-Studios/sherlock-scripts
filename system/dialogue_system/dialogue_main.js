@@ -1,12 +1,15 @@
 ﻿#pragma strict
 
 // TODO: 
-// 1. auto positioning of GUITexts
-// 2. word wrap
-// 3. read from external text file
+// * word wrap
+// * read from external text file & parser
 
 public var name_plate: GUIText;
 public var dialogue_plate: GUIText;
+
+public var plate_offset_x : float;
+public var name_plate_offset_y : float;
+public var dialogue_plate_offset_y: float;
 
 private var dgs_lesson1 : Dialogue[];
 private var scene_lesson1: Scene;
@@ -15,9 +18,25 @@ private var window_transform:Transform;
 
 function Start () {	
 	guienviron = GUIEnviron(name_plate, dialogue_plate);
-	window_transform = GetComponent(Transform);
-	
 	// setup GUIText positioning
+	var window_renderer = GetComponent(Renderer);
+	var window_width = window_renderer.bounds.max.x - window_renderer.bounds.min.x;
+	var window_height = window_renderer.bounds.max.y - window_renderer.bounds.min.y;
+	// topleft corner in worldspace
+	var window_x = window_renderer.bounds.min.x;
+	var window_y = window_renderer.bounds.max.y;
+	
+	var name_plate_x = window_x + plate_offset_x * window_height;
+	var name_plate_y = window_y - name_plate_offset_y * window_height;
+	var name_plate_screenpos = Camera.main.WorldToScreenPoint(Vector3(name_plate_x, name_plate_y));
+	name_plate.transform.position.x = name_plate_screenpos.x / Camera.main.pixelWidth;
+	name_plate.transform.position.y = name_plate_screenpos.y / Camera.main.pixelHeight;
+	
+	var dialog_plate_x = window_x + plate_offset_x * window_height;
+	var dialog_plate_y = window_y - dialogue_plate_offset_y * window_height;
+	var dialogue_plate_screenpos = Camera.main.WorldToScreenPoint(Vector3(dialog_plate_x, dialog_plate_y));
+	dialogue_plate.transform.position.x = dialogue_plate_screenpos.x / Camera.main.pixelWidth;
+	dialogue_plate.transform.position.y = dialogue_plate_screenpos.y / Camera.main.pixelHeight;
 	
 	// set up scene
 	dgs_lesson1 = new Dialogue[2];
@@ -25,7 +44,6 @@ function Start () {
 	dgs_lesson1[1] = Dialogue("Sherlock", "You're working with a visual medium now. You can't just rely on descriptive text anymore. ");
 	
 	scene_lesson1 = Scene(dgs_lesson1);
-	
 	scene_lesson1.display(guienviron);
 }
 
@@ -37,6 +55,7 @@ function Update () {
 
 
 public class GUIEnviron{
+	// wrapper class to include all GUI elements to be updated
 	public var name_plate:GUIText;
 	public var dialogue_plate:GUIText;
 	
