@@ -1,23 +1,30 @@
 ﻿#pragma strict
 
-// TODO: 
-// * word wrap
-// * read from external text file & parser
+/* main code for dialogue system
+Author: Xiayun Sun (xiayunsun@gmail.com)
+
+TODO: 
+* word wrap
+* different character_id rendering
+
+*/
 
 public var name_plate: GUIText;
 public var dialogue_plate: GUIText;
+public var text_file : TextAsset;
 
 public var plate_offset_x : float;
 public var name_plate_offset_y : float;
 public var dialogue_plate_offset_y: float;
 
-private var dgs_lesson1 : Dialogue[];
-private var scene_lesson1: Scene;
+private var scene: Scene;
+private var fileparser: parser;
 private var guienviron : GUIEnviron;
-private var window_transform:Transform;
 
 function Start () {	
 	guienviron = GUIEnviron(name_plate, dialogue_plate);
+	fileparser = GetComponent(parser);
+	
 	// setup GUIText positioning
 	var window_renderer = GetComponent(Renderer);
 	var window_width = window_renderer.bounds.max.x - window_renderer.bounds.min.x;
@@ -39,17 +46,13 @@ function Start () {
 	dialogue_plate.transform.position.y = dialogue_plate_screenpos.y / Camera.main.pixelHeight;
 	
 	// set up scene
-	dgs_lesson1 = new Dialogue[2];
-	dgs_lesson1[0] = Dialogue("John", "I don't know... This looks really complicated.");
-	dgs_lesson1[1] = Dialogue("Sherlock", "You're working with a visual medium now. You can't just rely on descriptive text anymore. ");
-	
-	scene_lesson1 = Scene(dgs_lesson1);
-	scene_lesson1.display(guienviron);
+	scene = fileparser.parse(text_file);
+	scene.display(guienviron);
 }
 
 function Update () {
 	if(Input.GetKeyDown(KeyCode.Return)){
-		scene_lesson1.display(guienviron);
+		scene.display(guienviron);
 	}
 }
 
