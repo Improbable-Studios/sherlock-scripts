@@ -15,7 +15,7 @@ function parse(text_asset:TextAsset):Scene{
 	for (var i = 0; i < lines.Length; i++){
 		var line_components = lines[i].Split('|'[0]);
 		var char_id = line_components[0];
-		var line = line_components[1];
+		var line = Line(line_components[1]);
 		dgs[i] = Dialogue(char_id, line);
 	}
 	

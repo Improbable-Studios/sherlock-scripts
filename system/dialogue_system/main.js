@@ -70,23 +70,88 @@ public class GUIEnviron{
 
 public class Dialogue{
 	public var character_id: String;
-	public var line: String;
+	public var line: Line;
 	
 	// constructor
-	public function Dialogue(cid:String, ln:String){
+	public function Dialogue(cid:String, ln:Line){
 		character_id = cid;
 		line = ln;
 	}
-	
+		
 	public function show(env:GUIEnviron){
 		// render differently on special character_id like INFO, CENTERED, EXTEND, ???, NO-NAME, CHOICE
+		line.word_wrap();
+		line.parse_tags();
+		
 		if(character_id == 'INFO'){
 		
 		}
-		else{
-			env.name_plate.text = character_id;
-			env.dialogue_plate.text = line;
+		else if(character_id == 'CENTERED'){
+			env.name_plate.text = "";
+			env.dialogue_plate.alignment = TextAlignment.Center;
 		}
+		else{
+			env.dialogue_plate.alignment = TextAlignment.Left;
+			env.name_plate.text = character_id;
+		}
+		env.dialogue_plate.text = line.text;
+	}
+}
+
+public class Line{
+	// utility functions to construct the text line
+	public var text : String;
+	public var length : int = 85;
+	
+	public function Line(s:String){
+		text = s;
+	}	
+	
+	public function word_wrap(){
+		// insert /n to break too-long lines
+		// ignore tags
+		var text_array = text.Split(" "[0]);
+		var acc_length = 0;
+		var acc_string : String = "";
+		
+		for (var i = 0; i < text_array.Length; i++){
+			// ignore tags
+			var j = text_array[i].LastIndexOf("{/");
+			var l = text_array[i].Length;
+			if (j == -1){
+				acc_length += l;
+			}else{
+				acc_length += l - 2*(l-j);
+			}
+			if(acc_length > length){
+				acc_string += "\n" + " " + text_array[i];
+				acc_length = 0;
+			}
+			else{
+				acc_string += " " + text_array[i];
+			}
+		}
+		text = acc_string;	
+	}
+	
+	public function parse_tags(){
+		/* replace tags in s by html markups for richtext 
+			{t}: <color=blue>
+			{stat}: <color=green>
+			{info}:<color=orange>
+			{i}: <i>
+			{b}: <b>
+			{u}: <u>
+			{a}
+			{s}
+		*/
+		var s_t = text.Replace("{t}", "<color=blue>").Replace("{/t}", "</color>");
+		var s_stat = s_t.Replace("{stat}", "<color=green>").Replace("{/stat}", "</color>");
+		var s_info = s_stat.Replace("{info}", "<color=orange>").Replace("{/info}", "</color>");
+		var s_i = s_info.Replace("{i}", "<i>").Replace("{/i}", "</i>");
+		var s_b = s_i.Replace("{b}", "<b>").Replace("{/b}", "</b>");
+		var s_u = s_b.Replace("{u}", "<u>").Replace("{/u}", "</u>");
+		text = s_u;
 	}
 }
 
